@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css?family=Arsenal');
+body {
+    height:100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+    font-family:'Arsenal';
+    background: #EDFBFF;
+    text-align:center;
+}
+
+.head {
+    background:white;
+    border-bottom:1px solid black;
+}
