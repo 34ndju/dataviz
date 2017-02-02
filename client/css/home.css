@@ -14,9 +14,13 @@ body {
     border-bottom:1px solid black;
 }
 
+.label {
+    
+}
+
 .axis path, .axis line {
     fill: none;
-    stroke: #000;
+    stroke: black;
     shape-rendering: crispEdges;
 }
 

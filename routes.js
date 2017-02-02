@@ -16,7 +16,7 @@ module.exports = function(express, app, bodyParser, path) {
         },
         {
             x: 12,
-            y: 79
+            y: 61
         },
         {
             x: 90,
