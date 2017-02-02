@@ -39,14 +39,13 @@ $(document).ready(function() {
         
         
     var keywords = {}
+    var topKeyWords = [] //{kw: ___ , value: ____} of length 20 charting the top 20 most common keywords
     
     //deal with the data; array of JSON objects
     d3.json('https://api.nytimes.com/svc/archive/v1/2016/1.json?api-key=f48e8031e0eb4215826d116e3523fab8', function(err, data) {
-        console.log(data)
-        
         data = data.response.docs;
-        console.log(data)
         
+        //let's get the article keywords into the keywords JSON object
         data.forEach(function(d) {
             d.keywords.forEach(function(kw) {
                 if(keywords[kw.value]) {
@@ -57,8 +56,37 @@ $(document).ready(function() {
                 }
             })
         })
+    
         
-        console.log(keywords)
+        for(var key in keywords) {
+            if(topKeyWords.length == 20) {
+                //for syntax deconfusion, this runs when topKeyWords is full at 30
+                
+                if(keywords[key] > topKeyWords[19].value) {
+                    var insertSpot = 0;
+                    for(var i = 0; i < topKeyWords.length; i++) {
+                        if(keywords[key] > topKeyWords[i].value) {
+                            insertSpot = i;
+                            break;
+                        }
+                    }
+                    topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key]})
+                    topKeyWords.pop()
+                }
+            }
+            else {
+                var insertSpot = 0;
+                for(var i = 0; i < topKeyWords.length; i++) {
+                    if(keywords[key] > topKeyWords[i].value) {
+                        insertSpot = i;
+                        break;
+                    }
+                }
+                topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key]})
+            }
+        }
+        
+        console.log(topKeyWords)
         
         /*//adjust the axes
         xScale.domain([d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]);
