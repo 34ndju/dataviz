@@ -1,12 +1,8 @@
 $(document).ready(function() {
     
     /*
-    DO SOMETHING WITH THIS
     https://developer.nytimes.com/
     API Key f48e8031e0eb4215826d116e3523fab8
-    
-    Word frequency for most popular articles?
-    Try ML?
     */
 
     //setup graph size
@@ -36,13 +32,18 @@ $(document).ready(function() {
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-        
-        
+
+
+    //begin interacting with NYT API
     var keywords = {}
+    var insertSpot;
     var topKeyWords = [] //{kw: ___ , value: ____} of length 20 charting the top 20 most common keywords
+    var kwExceptions = ['N Y S', 'NEW YORK STATE', 'N Y C', 'U S', 'NEW YORK CITY', 'UNITED STATES'] //we're going to exclude these keywords because they are unimportant
     
     //deal with the data; array of JSON objects
-    d3.json('https://api.nytimes.com/svc/archive/v1/2016/1.json?api-key=f48e8031e0eb4215826d116e3523fab8', function(err, data) {
+    d3.json('https://api.nytimes.com/svc/archive/v1/1951/1.json?api-key=f48e8031e0eb4215826d116e3523fab8', function(err, data) {
+        console.log(data)
+        
         data = data.response.docs;
         
         //let's get the article keywords into the keywords JSON object
@@ -56,14 +57,14 @@ $(document).ready(function() {
                 }
             })
         })
-    
         
         for(var key in keywords) {
-            if(topKeyWords.length == 20) {
-                //for syntax deconfusion, this runs when topKeyWords is full at 30
-                
-                if(keywords[key] > topKeyWords[19].value) {
-                    var insertSpot = 0;
+            
+            if(topKeyWords.length == 15) {
+                //for syntax deconfusion, this runs when topKeyWords is full at 15
+
+                if(keywords[key] > topKeyWords[14].value && kwExceptions.indexOf(key) == -1) {
+                    insertSpot = 0;
                     for(var i = 0; i < topKeyWords.length; i++) {
                         if(keywords[key] > topKeyWords[i].value) {
                             insertSpot = i;
@@ -73,18 +74,42 @@ $(document).ready(function() {
                     topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key]})
                     topKeyWords.pop()
                 }
+                
             }
             else {
-                var insertSpot = 0;
-                for(var i = 0; i < topKeyWords.length; i++) {
-                    if(keywords[key] > topKeyWords[i].value) {
-                        insertSpot = i;
-                        break;
+                //happens if length is less than 15
+                
+                //if value is <= 1, we will not insert ever
+                insertSpot = keywords[key] > 1 && kwExceptions.indexOf(key) == -1 ? 0 : -1;
+                
+                if(insertSpot == 0) {
+                    
+                    for(var i = 0; i < topKeyWords.length; i++) {
+
+                        if(keywords[key] > topKeyWords[i].value) {
+                            insertSpot = i;
+                            topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key]});
+                            break;
+                        }
+                        
+                        if(i == topKeyWords.length - 1) {
+                            //reached the end, so just push()
+                            insertSpot = 15;
+                            topKeyWords.push({kw: key, value: keywords[key]})
+                            break;
+                        }
+                    }
+                    
+                    if(insertSpot == 0) {
+                        topKeyWords.push({kw: key, value: keywords[key]})
                     }
                 }
-                topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key]})
+                
             }
+            
         }
+        
+        
         
         console.log(topKeyWords)
         
