@@ -14,16 +14,40 @@ body {
     border-bottom:1px solid black;
 }
 
-.label {
-    
+.head h1 {
+    margin:5px;
 }
 
-.axis path, .axis line {
-    fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
+.head h2 {
+    margin:5px;
 }
 
-.dot {
-    stroke: #000;
+.head h3 {
+    font-weight:normal;
+    margin:10px;
+}
+
+.head p {
+    font-size:10px;
+    margin:5px;    
+}
+
+#enter {
+    background:white;
+}
+
+.bar {
+    fill: steelblue;
+}
+
+.bar:hover {
+    fill: brown;
+}
+
+.axis--x .tick text {
+    font-size:7px;
+}
+
+.axis--x path {
+    display: none;
 }

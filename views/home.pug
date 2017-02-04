@@ -3,13 +3,16 @@ head
     script(src='/js/jquery-3.1.1.min.js')
     link(href='/css/home.css', rel='stylesheet')
 
-    title DataViz
+    title NEWSxTIME
 body
     div.head
-        h1 DataViz
-        p Visualize Anything 
-        p Utilizing the D3.js library
+        h1 NEWSxTIME
+        h2 What have news-readers cared about since 1851?
+        h3 Newspapers, like the New York Times, tell us a lot. For one, they give us a glimpse into the happenings of the past.
+        h3 These are the news-worthy and hot-topic NYT keywords of yesterday and today. Choose a year and find out what NYT readers have cared about since 1851.
+        p Utilizing the D3.js library and NYT Archive API
         
-        
+    input#year(type='text')
+    div#enter Enter
     
     script(src='/js/home.js')

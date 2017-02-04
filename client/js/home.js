@@ -6,9 +6,9 @@ $(document).ready(function() {
     */
 
     //setup graph size
-    var margin = {top: 30, bottom: 30, right: 50, left: 50};
-    var width = 960 - margin.left - margin.right,
-        height = 520 - margin.top - margin.bottom;
+    var margin = {top: 30, bottom: 300, right: 50, left: 50};
+    var width = 1080 - margin.left - margin.right,
+        height = 780 - margin.top - margin.bottom;
     
     //make sure to set the variable names EXACTLY for x and y
     var xVariable = 'x',
@@ -16,15 +16,17 @@ $(document).ready(function() {
     
     //setup x axis
     var xValue = function(d) {return d[xVariable]},
-        xScale = d3.scaleLinear().range([0, width]),
-        xMap = function(d) {return xScale(xValue(d))},
-        xAxis = d3.axisBottom(xScale);
+        xScale = d3.scaleBand().rangeRound([0, width]).padding(0.1)
+
+        //xMap = function(d) {return xScale(xValue(d))},
+        //xAxis = d3.axisBottom(xScale);
     
     //setup y axis
     var yValue = function(d) {return d[yVariable]},
-        yScale = d3.scaleLinear().range([height, 0]),
-        yMap = function(d) {return yScale(yValue(d))},
-        yAxis = d3.axisLeft(yScale);
+        yScale = d3.scaleLinear().rangeRound([height, 0])
+       
+        //yMap = function(d) {return yScale(yValue(d))},
+        //yAxis = d3.axisLeft(yScale);
         
     //adding canvas to body
     var svg = d3.select('body').append('svg')
@@ -38,40 +40,77 @@ $(document).ready(function() {
     var keywords = {}
     var insertSpot;
     var topKeyWords = [] //{kw: ___ , value: ____} of length 20 charting the top 20 most common keywords
-    var kwExceptions = ['N Y S', 'NEW YORK STATE', 'N Y C', 'U S', 'NEW YORK CITY', 'UNITED STATES'] //we're going to exclude these keywords because they are unimportant
+    
+    //we're going to exclude these keywords because they are unimportant
+    var kwExceptions = ['BIOGRAPHICAL INFORMATION', 'REVIEWS AND NOTES', 'N Y S', 'NEW YORK STATE', 'N Y C', 'U S', 'NEW YORK CITY', 'UNITED STATES', 'United States', 'Art', 'Basketball', 'Football', 'Editorials', 'Fashion and Apparel', 'New York State', 'New York City', 'New Jersey', 'Books and Literature', 'Theater', 'EDITORIAL', 'MISCELLANEOUS', 'MISCELLANEOUS SECTION', 'GENERAL', 'BOOK REVIEWS', 'NEW YORK CITY AND METROPOLITAN AREA', 'NEW JERSEY', 'News', 'REVIEWS'] 
+    
+    //var year = '2002' //year to explore.
+    
+    //$('#enter').click(function() {
+    
+    var year = '2016'  //$('#year').val()
     
     //deal with the data; array of JSON objects
-    d3.json('https://api.nytimes.com/svc/archive/v1/1951/1.json?api-key=f48e8031e0eb4215826d116e3523fab8', function(err, data) {
-        console.log(data)
-        
+    d3.json('https://api.nytimes.com/svc/archive/v1/' + year + '/1.json?api-key=f48e8031e0eb4215826d116e3523fab8', function(err, data) {
+
         data = data.response.docs;
         
-        //let's get the article keywords into the keywords JSON object
+        console.log(data)
+        
+        //let's get the article keywords, links, multimedia, and headline into the keywords JSON object
         data.forEach(function(d) {
             d.keywords.forEach(function(kw) {
                 if(keywords[kw.value]) {
-                    keywords[kw.value]++; 
+                    //try to see if there is a link, image, and headline to article. also see if there is a preexisting image. if not, only increment value
+
+                    if(!keywords[kw.value].image && d.web_url && d.headline.main && d.multimedia[0]) {
+                        keywords[kw.value].value++;
+                        keywords[kw.value].image= d.multimedia[0];
+                        keywords[kw.value].link = d.web_url;
+                        keywords[kw.value].headline = d.headline.main;
+                    }
+                    else {
+                        keywords[kw.value].value++;
+                    }
                 }
                 else {
-                    keywords[kw.value] = 1;
+                    //try to see if there is a link to article. if not, only set value to 1
+                    
+                    if(d.web_url) {
+                            //some info may be null. that's ok
+                            keywords[kw.value] = {
+                                value: 1,
+                                image: d.multimedia[0],
+                                link: d.web_url,
+                                headline: d.headline.main
+                            }
+                    }
+                    else {
+                        keywords[kw.value] = {
+                            value: 1,
+                            image: null,
+                            link: null,
+                            headline: null
+                        }
+                    }
                 }
             })
         })
         
+        //insert top 15 keywords, links, images, and headlines into topKeyWords
         for(var key in keywords) {
-            
             if(topKeyWords.length == 15) {
                 //for syntax deconfusion, this runs when topKeyWords is full at 15
-
-                if(keywords[key] > topKeyWords[14].value && kwExceptions.indexOf(key) == -1) {
+                
+                if(keywords[key].value > topKeyWords[14].value && kwExceptions.indexOf(key) == -1) {
                     insertSpot = 0;
                     for(var i = 0; i < topKeyWords.length; i++) {
-                        if(keywords[key] > topKeyWords[i].value) {
+                        if(keywords[key].value > topKeyWords[i].value) {
                             insertSpot = i;
                             break;
                         }
                     }
-                    topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key]})
+                    topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key].value, link: keywords[key].link, image: keywords[key].image, headline: keywords[key].headline})
                     topKeyWords.pop()
                 }
                 
@@ -80,77 +119,110 @@ $(document).ready(function() {
                 //happens if length is less than 15
                 
                 //if value is <= 1, we will not insert ever
-                insertSpot = keywords[key] > 1 && kwExceptions.indexOf(key) == -1 ? 0 : -1;
+                insertSpot = keywords[key].value > 1 && kwExceptions.indexOf(key) == -1 ? 0 : -1;
                 
                 if(insertSpot == 0) {
-                    
                     for(var i = 0; i < topKeyWords.length; i++) {
-
-                        if(keywords[key] > topKeyWords[i].value) {
+                        if(keywords[key].value > topKeyWords[i].value) {
                             insertSpot = i;
-                            topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key]});
+                            topKeyWords.splice(insertSpot, 0, {kw: key, value: keywords[key].value, link: keywords[key].link, image: keywords[key].image, headline: keywords[key].headline});
+                            insertSpot = -1; //so we don't get a repeat insert
                             break;
                         }
                         
                         if(i == topKeyWords.length - 1) {
                             //reached the end, so just push()
+                            
                             insertSpot = 15;
-                            topKeyWords.push({kw: key, value: keywords[key]})
+                            topKeyWords.push({kw: key, value: keywords[key].value, link: keywords[key].link, image: keywords[key].image, headline: keywords[key].headline})
                             break;
                         }
                     }
-                    
+   
                     if(insertSpot == 0) {
-                        topKeyWords.push({kw: key, value: keywords[key]})
+                        topKeyWords.push({kw: key, value: keywords[key].value, link: keywords[key].link, image: keywords[key].image, headline: keywords[key].headline})
                     }
                 }
-                
             }
-            
         }
         
-        
-        
-        console.log(topKeyWords)
-        
-        /*//adjust the axes
-        xScale.domain([d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]);
-        yScale.domain([d3.min(data, yValue) - 1, d3.max(data, yValue) + 1]);
+        topKeyWords.forEach(function(k) {
+          console.log(k)  
+        })
 
-        //x axis
+        
+        //adjust the axes
+        xScale.domain(topKeyWords.map(function(d) {return d.kw;}));
+        yScale.domain([0, d3.max(topKeyWords, function(d) {return d.value; })]);
+       
+       //add x axis
         svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis)
-            .append("text")
-            .attr("class", "label")
-            .attr("x", width)
-            .attr("y", -6)
-            .style("text-anchor", "end")
-            .text(xVariable);
+          .attr("class", "axis axis--x")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(xScale));
             
-            
-        // y-axis
+        
         svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("class", "label")
+            .attr("class", "axis axis--y")
+            .call(d3.axisLeft(yScale).ticks(10))
+        .append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 6)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-            .text(yVariable)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "end")
+            .text("Articles")
+
+       
+        //prepare bars for transitions
+        svg.selectAll(".bar")
+            .data(topKeyWords)
+            .enter()
+        .append("rect")
+            .attr("class", "bar")
+            .attr("x", function(d) { return xScale(d.kw); })
+            .attr("y", function(d) { return height })
+            .attr("width", xScale.bandwidth())
+            .attr("height", function(d) {return 0});
+         
+        //wrap text so no overlap   
+        svg.selectAll(".axis--x .tick text")
+            .call(wrap, xScale.bandwidth())
             
-        //draw dots
-        svg.selectAll(".dot")
-            .data(data)
-            .enter().append("circle")
-            .attr("class", "dot")
-            .attr("r", 3.5)
-            .attr("cx", xMap)
-            .attr("cy", yMap)
-            .style("fill", "red") */
             
+        //transition in the bars
+        svg.selectAll('.bar')
+            .data(topKeyWords)
+            .transition()
+            .attr("y", function(d) { return yScale(d.value); })
+            .attr("height", function(d) {return height - yScale(d.value);})
+            .duration(500)
+       
     })
+    
+    //})
 })
+
+
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
