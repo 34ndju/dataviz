@@ -48,7 +48,7 @@ $(document).ready(function() {
     
     //$('#enter').click(function() {
     
-    var year = '2016'  //$('#year').val()
+    var year = '2014'  //$('#year').val()
     
     //deal with the data; array of JSON objects
     d3.json('https://api.nytimes.com/svc/archive/v1/' + year + '/1.json?api-key=f48e8031e0eb4215826d116e3523fab8', function(err, data) {
@@ -56,18 +56,37 @@ $(document).ready(function() {
         data = data.response.docs;
         
         console.log(data)
-        
+
         //let's get the article keywords, links, multimedia, and headline into the keywords JSON object
         data.forEach(function(d) {
             d.keywords.forEach(function(kw) {
                 if(keywords[kw.value]) {
                     //try to see if there is a link, image, and headline to article. also see if there is a preexisting image. if not, only increment value
 
-                    if(!keywords[kw.value].image && d.web_url && d.headline.main && d.multimedia[0]) {
-                        keywords[kw.value].value++;
-                        keywords[kw.value].image= d.multimedia[0];
-                        keywords[kw.value].link = d.web_url;
-                        keywords[kw.value].headline = d.headline.main;
+                    if(!d.headline.dontRepeat) {
+                        //we have not used this article yet as a link
+                        
+                        if(!keywords[kw.value].link && d.web_url && !keywords[kw.value].headline && d.headline.main) {
+                            keywords[kw.value].value++;
+                            keywords[kw.value].image= d.multimedia[0];
+                            keywords[kw.value].link = d.web_url;
+                            keywords[kw.value].headline = d.headline.main;
+                            
+                            d.headline.dontRepeat = true;
+                        }
+                        else {
+                            if(!keywords[kw.value].image && d.multimedia[0]) {
+                                keywords[kw.value].value++;
+                                keywords[kw.value].image= d.multimedia[0];
+                                keywords[kw.value].link = d.web_url;
+                                keywords[kw.value].headline = d.headline.main;
+                                
+                                d.headline.dontRepeat = true;
+                            }
+                            else {
+                                keywords[kw.value].value++;
+                            }
+                        }
                     }
                     else {
                         keywords[kw.value].value++;
@@ -75,15 +94,17 @@ $(document).ready(function() {
                 }
                 else {
                     //try to see if there is a link to article. if not, only set value to 1
-                    
-                    if(d.web_url) {
-                            //some info may be null. that's ok
-                            keywords[kw.value] = {
-                                value: 1,
-                                image: d.multimedia[0],
-                                link: d.web_url,
-                                headline: d.headline.main
-                            }
+
+                    if(d.web_url && !d.headline.dontRepeat) {
+                        //some info may be null. that's ok
+                        keywords[kw.value] = {
+                            value: 1,
+                            image: d.multimedia[0],
+                            link: d.web_url,
+                            headline: '' + d.headline.main
+                        }
+
+                        d.headline.dontRepeat = true; //so we don't repeat add articles
                     }
                     else {
                         keywords[kw.value] = {
@@ -177,12 +198,14 @@ $(document).ready(function() {
         svg.selectAll(".bar")
             .data(topKeyWords)
             .enter()
-        .append("rect")
-            .attr("class", "bar")
-            .attr("x", function(d) { return xScale(d.kw); })
-            .attr("y", function(d) { return height })
-            .attr("width", xScale.bandwidth())
-            .attr("height", function(d) {return 0});
+        .append('a')
+            .attr('href', function(d) {return d.link})
+            .append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return xScale(d.kw); })
+                .attr("y", function(d) { return height })
+                .attr("width", xScale.bandwidth())
+                .attr("height", function(d) {return 0})
          
         //wrap text so no overlap   
         svg.selectAll(".axis--x .tick text")

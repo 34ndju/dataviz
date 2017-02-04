@@ -38,6 +38,7 @@ body {
 
 .bar {
     fill: steelblue;
+    cursor:pointer;
 }
 
 .bar:hover {
