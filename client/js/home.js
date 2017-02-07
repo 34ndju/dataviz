@@ -1,5 +1,8 @@
 $(document).ready(function() {
     
+    console.log(isScrolledIntoView('.logo'))
+    
+    
     /*
     https://developer.nytimes.com/
     API Key f48e8031e0eb4215826d116e3523fab8
@@ -42,7 +45,7 @@ $(document).ready(function() {
     var topKeyWords = [] //{kw: ___ , value: ____} of length 20 charting the top 20 most common keywords
     
     //we're going to exclude these keywords because they are unimportant
-    var kwExceptions = ['Politics and Government', 'DEATHS', 'CORRECTION STORIES', 'NEW YORK GIANTS', 'BALTIMORE RAVENS','BIOGRAPHICAL INFORMATION', 'REVIEWS AND NOTES', 'N Y S', 'NEW YORK STATE', 'N Y C', 'U S', 'NEW YORK CITY', 'UNITED STATES', 'United States', 'Art', 'Basketball', 'Football', 'Editorials', 'Fashion and Apparel', 'New York State', 'New York City', 'New Jersey', 'Books and Literature', 'BOOKS AND LITERATURE', 'FOOTBALL', 'MUSIC', 'ART', 'MURDERS AND ATTEMPTED MURDERS', 'BASKETBALL', 'DEATHS (OBITUARIES)', 'Deaths (Obituaries)', 'POLITICS AND GOVERNMENT', 'UNITED STATES POLITICS AND GOVERNMENT', 'Theater', 'EDITORIAL', 'MISCELLANEOUS', 'MISCELLANEOUS SECTION', 'GENERAL', 'BOOK REVIEWS', 'NEW YORK CITY AND METROPOLITAN AREA', 'NEW JERSEY', 'News', 'REVIEWS'] 
+    var kwExceptions = ['Politics and Government', 'DEATHS', 'DEATHS AND DEATH RATE', 'CORRECTION STORIES', 'NEW YORK GIANTS', 'BALTIMORE RAVENS','BIOGRAPHICAL INFORMATION', 'REVIEWS AND NOTES', 'N Y S', 'NEW YORK STATE', 'N Y C', 'U S', 'NEW YORK CITY', 'UNITED STATES', 'United States', 'Art', 'Basketball', 'Football', 'Editorials', 'Fashion and Apparel', 'New York State', 'New York City', 'New Jersey', 'Books and Literature', 'BOOKS AND LITERATURE', 'FOOTBALL', 'MUSIC', 'ART', 'MURDERS AND ATTEMPTED MURDERS', 'BASKETBALL', 'DEATHS (OBITUARIES)', 'Deaths (Obituaries)', 'POLITICS AND GOVERNMENT', 'UNITED STATES POLITICS AND GOVERNMENT', 'Theater', 'EDITORIAL', 'MISCELLANEOUS', 'MISCELLANEOUS SECTION', 'GENERAL', 'BOOK REVIEWS', 'NEW YORK CITY AND METROPOLITAN AREA', 'NEW JERSEY', 'News', 'REVIEWS'] 
     
     //var year = '2002' //year to explore.
     
@@ -248,4 +251,15 @@ function wrap(text, width) {
       }
     }
   });
+}
+
+function isScrolledIntoView(elem)
+{
+    var docViewTop = $(window).scrollTop();
+    var docViewBottom = docViewTop + $(window).height();
+
+    var elemTop = $(elem).offset().top;
+    var elemBottom = elemTop + $(elem).height();
+
+    return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
 }

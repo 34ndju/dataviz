@@ -3,16 +3,22 @@ head
     script(src='/js/jquery-3.1.1.min.js')
     link(href='/css/home.css', rel='stylesheet')
 
-    title NEWSxTIME
+    title NYT Trends
 body
-    div.head
-        h1 NEWSxTIME
-        h2 What has been "trending" since 1851?
-        h3 Newspapers, like the New York Times, tell us a lot. For one, they give us a glimpse into the happenings of the past.
-        h3 These are the news-worthy and hot-topic NYT keywords of yesterday and today. Choose a year and find out what NYT readers have cared about since 1851.
-        p Utilizing the D3.js library and NYT Archive API
-        
-    input#year(type='text')
-    div#enter Enter
+    div.top
+        div.head
+            img.logo(src='/images/trends.png')
+            h3 These are the news-worthy and hot-topic NYT keywords of the past. Enter a year and find out what NYT readers have cared about since 1852.
+            div.credits
+                p Utilizing the D3.js library and NYT Archive API (and a few other libraries)
+                a(href='https://www.d3js.org')
+                    img(src='/images/d3.png')
+                a(href='https://www.nytimes.com')
+                    img(src='/images/nyt.png')
+    
+    div.input
+        input#year(type='text', maxlength='4')
+        div#enter 
+            p Enter
     
     script(src='/js/home.js')
