@@ -30,6 +30,7 @@ $(document).ready(function() {
     
     //var year = '2002' //year to explore.
     
+    
     $('#enter').click(function() {
     
         var year = /*'1970'*/  $('#year').val()
