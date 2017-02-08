@@ -99,6 +99,30 @@ body {
     fill: brown;
 }
 
+.content {
+    margin-bottom:20px;
+    border:1px solid #FFBE4D;
+    padding-bottom:5px;
+    width:200px;
+    display: none;
+    position:absolute;
+    background:white;
+}
+
+.content h1 {
+    width:80%;
+    margin:auto;
+    font-size:14px;
+    color:#FFBE4D;
+}
+
+.content h1:hover {
+    text-decoration:underline;
+}
+
+.content img {
+    width:80%;
+}
 .axis--x .tick text {
     font-size:7px;
 }

@@ -10,15 +10,17 @@ body
             img.logo(src='/images/trends.png')
             h3 These are the news-worthy and hot-topic NYT keywords of the past. Enter a year and find out what NYT readers have cared about since 1852.
             div.credits
-                p Utilizing the D3.js library and NYT Archive API (and a few other libraries)
+                p Utilizing the D3.js library and NYT Archive API (and a few other libraries). By 
+                    a(href='https://www.github.com/34ndju' style="text-decoration:underline; color:blue;") 
+                        span Nathan Ju
                 a(href='https://www.d3js.org')
                     img(src='/images/d3.png')
                 a(href='https://www.nytimes.com')
                     img(src='/images/nyt.png')
     
-    div.input
+    form.input
         input#year(type='text', maxlength='4')
         div#enter 
             p Enter
-    
+
     script(src='/js/home.js')

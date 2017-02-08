@@ -26,7 +26,7 @@ $(document).ready(function() {
         yScale = d3.scaleLinear().rangeRound([height, 0])
     
     //we're going to exclude these keywords because they are unimportant
-    var kwExceptions = ['Politics and Government', 'DEATHS', 'DEATHS AND DEATH RATE', 'CORRECTION STORIES', 'NEW YORK GIANTS', 'BALTIMORE RAVENS','BIOGRAPHICAL INFORMATION', 'REVIEWS AND NOTES', 'N Y S', 'NEW YORK STATE', 'N Y C', 'U S', 'NEW YORK CITY', 'UNITED STATES', 'United States', 'Art', 'Basketball', 'Football', 'Editorials', 'Fashion and Apparel', 'New York State', 'New York City', 'New Jersey', 'Books and Literature', 'BOOKS AND LITERATURE', 'FOOTBALL', 'MUSIC', 'ART', 'MURDERS AND ATTEMPTED MURDERS', 'BASKETBALL', 'DEATHS (OBITUARIES)', 'Deaths (Obituaries)', 'POLITICS AND GOVERNMENT', 'UNITED STATES POLITICS AND GOVERNMENT', 'Theater', 'EDITORIAL', 'MISCELLANEOUS', 'MISCELLANEOUS SECTION', 'GENERAL', 'BOOK REVIEWS', 'NEW YORK CITY AND METROPOLITAN AREA', 'NEW JERSEY', 'News', 'REVIEWS'] 
+    var kwExceptions = ['Politics and Government', 'NO INDEX TERMS', 'DEATHS', 'DEATHS AND DEATH RATE', 'CORRECTION STORIES', 'NEW YORK GIANTS', 'BALTIMORE RAVENS','BIOGRAPHICAL INFORMATION', 'REVIEWS AND NOTES', 'N Y S', 'NEW YORK STATE', 'N Y C', 'U S', 'NEW YORK CITY', 'UNITED STATES', 'United States', 'Art', 'Basketball', 'Football', 'Editorials', 'Fashion and Apparel', 'New York State', 'New York City', 'New Jersey', 'Books and Literature', 'BOOKS AND LITERATURE', 'FOOTBALL', 'MUSIC', 'ART', 'MURDERS AND ATTEMPTED MURDERS', 'BASKETBALL', 'DEATHS (OBITUARIES)', 'Deaths (Obituaries)', 'POLITICS AND GOVERNMENT', 'UNITED STATES POLITICS AND GOVERNMENT', 'Theater', 'EDITORIAL', 'MISCELLANEOUS', 'MISCELLANEOUS SECTION', 'GENERAL', 'BOOK REVIEWS', 'NEW YORK CITY AND METROPOLITAN AREA', 'NEW JERSEY', 'News', 'REVIEWS'] 
     
     //var year = '2002' //year to explore.
     
@@ -35,6 +35,7 @@ $(document).ready(function() {
         var year = /*'1970'*/  $('#year').val()
         
         $('svg').remove();
+        $('.content').remove();
         
         //adding canvas to body
         var svg = d3.select('body').append('svg')
@@ -169,13 +170,12 @@ $(document).ready(function() {
             topKeyWords.forEach(function(k) {
               console.log(k)  
             })
-    
-            
+
             //adjust the axes
             xScale.domain(topKeyWords.map(function(d) {return d.kw;}));
             yScale.domain([0, d3.max(topKeyWords, function(d) {return d.value; })]);
            
-           //add x axis
+            //add x axis
             svg.append("g")
               .attr("class", "axis axis--x")
               .attr("transform", "translate(0," + height + ")")
@@ -194,7 +194,7 @@ $(document).ready(function() {
     
            
             //prepare bars for transitions
-            svg.selectAll(".bar")
+            var contentPreview = svg.selectAll(".bar")
                 .data(topKeyWords)
                 .enter()
             .append('a')
@@ -205,6 +205,7 @@ $(document).ready(function() {
                     .attr("y", function(d) { return height })
                     .attr("width", xScale.bandwidth())
                     .attr("height", function(d) {return 0})
+
              
             //wrap text so no overlap   
             svg.selectAll(".axis--x .tick text")
@@ -223,6 +224,36 @@ $(document).ready(function() {
                 .attr("y", function(d) { return yScale(d.value); })
                 .attr("height", function(d) {return height - yScale(d.value);})
                 .duration(500)
+                
+            //add previews
+            topKeyWords.forEach(function(t) {
+                if(t.image) {
+                    $('body').append("<div class='content' id='x" + t.value + "'><h1>" + t.headline + "</h1><img src ='https://www.nytimes.com/" + t.image.url + "'></div>")
+                }
+                else {
+                    $('body').append("<div class='content' id='x" + t.value + "'><h1>" + t.headline + "</h1></div>")
+                }
+                //$('a[href="' + t.link + '"]')
+                
+                $('a[href="' + t.link + '"]').hover(function(e) {
+                    $('.content').css('display', 'none');
+                    $("#x" + t.value).css({
+                        display: 'block',
+                        left: e.pageX,
+                        top: e.pageY - 180
+                    })
+                }, function(f) {
+                    $('.content').css('display', 'none');
+                })
+                /*
+                $(document).on('mousemove', function(e) {
+                    $("#" + t.value).css({
+                        left: e.pageX,
+                        right: e.pageY
+                    })
+                    console.log(e)
+                }) */
+            })
            
         })
     
