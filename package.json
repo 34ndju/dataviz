@@ -1,3 +1,28 @@
-"scripts": {
-  "start": "node server.js"
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "![Trends Image](https://www.dropbox.com/s/j1elc1pznrx2fjj/trends.png?raw=1)",
+  "main": "routes.js",
+  "dependencies": {
+    "pug": "^2.0.0-beta6",
+    "dotenv": "^4.0.0",
+    "express": "^4.14.0",
+    "body-parser": "^1.16.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/34ndju/dataviz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/34ndju/dataviz/issues"
+  },
+  "homepage": "https://github.com/34ndju/dataviz#readme"
 }
